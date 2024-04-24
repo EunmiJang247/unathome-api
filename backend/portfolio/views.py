@@ -6,8 +6,10 @@ from rest_framework import status
 from django.db.models import Avg, Min, Max, Count
 from rest_framework.pagination import PageNumberPagination
 
+from rest_framework.permissions import IsAuthenticated
+
 from .serializers import PortfolioSerializer
-from .models import Portfolio
+from .models import Portfolio, PortfolioImage
 
 from django.shortcuts import get_object_or_404
 from .filters import PortfoliosFilter
@@ -46,10 +48,32 @@ def getPortfolio(request, pk):
   return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def newPortfolio(request):
   data = request.data
-  portfolio = Portfolio.objects.create(**data)
-  serializer = PortfolioSerializer(portfolio, many=False)
+
+  portfolio_data = {
+      'title': data.get('title'),
+      'contents': data.get('contents'),
+      'address': data.get('address'),
+      'interiorCompany': data.get('interiorCompany'),
+      'residentType': data.get('residentType'),
+      'duration': data.get('duration'),
+      'size': data.get('size'),
+      'likeCount': data.get('likeCount'),
+      'price': data.get('price'),
+      'onAds': data.get('onAds'),
+  }
+
+  portfolio = Portfolio.objects.create(**portfolio_data)
+
+  images_data = request.FILES.getlist('images')
+  print(images_data)
+
+  # for image_data in images_data:
+  #       PortfolioImage.objects.create(portfolio=portfolio, image=image_data)
+
+  # serializer = PortfolioSerializer(portfolio, many=False)
   return Response(serializer.data)
 
 @api_view(['PUT'])

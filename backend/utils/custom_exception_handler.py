@@ -11,6 +11,8 @@ def custom_exception_handler(exc, context):
 
     exception_class = exc.__class__.__name__
 
+    # print(f'에러종류: {exception_class}')
+
     if exception_class == 'AttributeError':
         response.data = {
             "error": "서버코드에러"
@@ -18,12 +20,12 @@ def custom_exception_handler(exc, context):
 
     if exception_class == 'NotAuthenticated':
         response.data = {
-            "error": "Login first to access this resource."
+            "error": "로그인필요"
         }
 
     if exception_class == 'InvalidToken':
         response.data = {
-            "error": "Your authentication token is expired. Please login again."
+            "error": "토큰만료"
         }
 
     return response

@@ -38,3 +38,6 @@ class Portfolio(models.Model):
   # tags = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
   
+class PortfolioImage(models.Model):
+    portfolio = models.ForeignKey(Portfolio, related_name='images', on_delete=models.CASCADE)
+    images = models.ImageField(upload_to='portfolio_images/')

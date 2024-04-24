@@ -16,5 +16,5 @@ class Interiorcompany(models.Model):
   contactNumber = models.CharField(max_length=100, null=True)
   location = models.CharField(max_length=100, null=True)
   email = models.CharField(max_length=100, null=True)
-  # images = ArrayField(models.CharField(max_length=200), null=True)
+  image = models.FileField(null=True)
   averageRating = models.IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(5)])

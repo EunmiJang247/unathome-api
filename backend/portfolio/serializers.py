@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Portfolio
+from .models import Portfolio, PortfolioImage
 
 class PortfolioSerializer(serializers.ModelSerializer):
   class Meta:
