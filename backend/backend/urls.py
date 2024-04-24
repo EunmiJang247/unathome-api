@@ -9,8 +9,9 @@ urlpatterns = [
     path('api/', include('account.urls')),
     path('api/', include('customerreview.urls')),
     path('api/', include('interiorcompany.urls')),
+    path('api/', include('story.urls')),
     path('api/token/', TokenObtainPairView.as_view()),
-    path('api/token/verify/', TokenVerifyView.as_view())
+    path('api/token/verify/', TokenVerifyView.as_view()),
 ]
 
 handler500 = 'utils.error_views.handler500'

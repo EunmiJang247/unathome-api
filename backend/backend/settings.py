@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'portfolio.apps.PortfolioConfig',
     'account.apps.AccountConfig',
     'customerreview.apps.CustomerreviewConfig',
-    'interiorcompany.apps.InteriorcompanyConfig'
+    'interiorcompany.apps.InteriorcompanyConfig',
+    'story.apps.StoryConfig'
 ]
 
 MIDDLEWARE = [
