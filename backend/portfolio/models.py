@@ -40,4 +40,4 @@ class Portfolio(models.Model):
   
 class PortfolioImage(models.Model):
     portfolio = models.ForeignKey(Portfolio, related_name='images', on_delete=models.CASCADE)
-    images = models.ImageField(upload_to='portfolio_images/')
+    images = models.ImageField(upload_to='')

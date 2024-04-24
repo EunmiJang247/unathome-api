@@ -8,7 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import PortfolioSerializer
+from .serializers import PortfolioSerializer, PortfolioImageSerializer
 from .models import Portfolio, PortfolioImage
 
 from django.shortcuts import get_object_or_404
@@ -44,8 +44,19 @@ def getAllPortfolio(request):
 @permission_classes([AllowAny])
 def getPortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
-  serializer = PortfolioSerializer(portfolio, many=False)
-  return Response(serializer.data)
+  portfolio_serializer = PortfolioSerializer(portfolio, many=False)
+
+  # 해당 포트폴리오에 연결된 이미지 가져오기
+  images = PortfolioImage.objects.filter(portfolio=portfolio)
+  image_serializer = PortfolioImageSerializer(images, many=True)
+
+  # 포트폴리오 정보와 이미지 정보를 합쳐서 응답
+  response_data = {
+        'portfolio': portfolio_serializer.data,
+        'images': image_serializer.data
+  }
+
+  return Response(response_data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -60,20 +71,20 @@ def newPortfolio(request):
       'residentType': data.get('residentType'),
       'duration': data.get('duration'),
       'size': data.get('size'),
-      'likeCount': data.get('likeCount'),
       'price': data.get('price'),
-      'onAds': data.get('onAds'),
   }
 
+  # 포트폴리오 정보를 저장
   portfolio = Portfolio.objects.create(**portfolio_data)
-
   images_data = request.FILES.getlist('images')
+
   print(images_data)
 
-  # for image_data in images_data:
-  #       PortfolioImage.objects.create(portfolio=portfolio, image=image_data)
+  # 각 이미지를 포트폴리오에 연결합니다.
+  for image_data in images_data:
+        PortfolioImage.objects.create(portfolio=portfolio, images=image_data)
 
-  # serializer = PortfolioSerializer(portfolio, many=False)
+  serializer = PortfolioSerializer(portfolio, many=False)
   return Response(serializer.data)
 
 @api_view(['PUT'])
