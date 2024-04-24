@@ -19,8 +19,7 @@ DEBUG = os.environ.get('DEBUG') == 'True'
 # DEBUG = False
 
 # cors start
-ALLOWED_HOSTS = ['localhost']
-
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', 'ap-northeast-2.compute.amazonaws.com', '0.0.0.0']
 # cors end
 
 # Application definition
@@ -84,7 +83,6 @@ DATABASES = {
         "PORT": os.environ.get('DATABASE_PORT'),              
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
