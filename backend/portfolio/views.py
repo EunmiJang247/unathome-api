@@ -18,8 +18,16 @@ from .filters import PortfoliosFilter
 @permission_classes([AllowAny])
 def getMainPagePortfolio(request):
     filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.filter(onAds=True).order_by('-id')[:6])
-    serializer = PortfolioSerializer(filterset.qs, many=True)
-    return Response(serializer.data)
+    
+    portfolios_with_images = []
+    for portfolio in filterset.qs:
+        portfolio_data = PortfolioSerializer(portfolio).data
+        images = PortfolioImage.objects.filter(portfolio=portfolio)
+        image_data = PortfolioImageSerializer(images, many=True).data
+        portfolio_data['images'] = image_data
+        portfolios_with_images.append(portfolio_data)
+
+    return Response(portfolios_with_images)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -33,12 +41,21 @@ def getAllPortfolio(request):
   paginator.page_size = resPerPage
 
   queryset = paginator.paginate_queryset(filterset.qs, request)
-  
-  serializer = PortfolioSerializer(queryset, many=True)
+
+  # 포트폴리오와 연관된 이미지 가져오기
+  portfolios_with_images = []
+  for portfolio in queryset:
+      portfolio_data = PortfolioSerializer(portfolio).data
+
+      images = PortfolioImage.objects.filter(portfolio=portfolio)
+      image_data = PortfolioImageSerializer(images, many=True).data
+      portfolio_data['images'] = image_data
+      portfolios_with_images.append(portfolio_data)
+
   return Response({
     'count': count,
     'resPerPage': resPerPage,
-    'portfolios':serializer.data})
+    'portfolios': portfolios_with_images})
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

@@ -7,6 +7,8 @@ from rest_framework.pagination import PageNumberPagination
 
 from rest_framework.permissions import IsAuthenticated
 
+from account.serializers import UserSerializer
+
 from .serializers import CustomerreviewSerializer
 from .models import Customerreview
 
@@ -43,8 +45,18 @@ def getMainPageCustomerReview(request):
 @api_view(['GET'])
 def getCustomerReview(request, pk):
   customerreview = get_object_or_404(Customerreview, id=pk)
+
+  # 리뷰에 대한 유저 정보 가져오기
+  user = customerreview.createdBy
+
+  # 유저 정보 시리얼라이즈
+  user_serializer = UserSerializer(user)
+
   serializer = CustomerreviewSerializer(customerreview, many=False)
-  return Response(serializer.data)
+  return Response({
+      'user': user_serializer.data,
+      'review': serializer.data
+  })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
