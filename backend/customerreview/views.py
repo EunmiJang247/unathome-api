@@ -79,7 +79,12 @@ def updateCustomerReview(request, pk):
   return Response(serializer.data)
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def deleteCustomerReview(request, pk):
-  portfolio = get_object_or_404(Customerreview, id=pk)
-  portfolio.delete()
+  customerreview = get_object_or_404(Customerreview, id=pk)
+
+  if customerreview.createdBy != request.user:
+    return Response({'message': 'You can not update this job'}, status=status.HTTP_403_FORBIDDEN)
+
+  customerreview.delete()
   return Response({ 'message': 'Customer Review is Deleted' }, status=status.HTTP_200_OK)
