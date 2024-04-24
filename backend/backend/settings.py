@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django_filters',
     'portfolio.apps.PortfolioConfig',
     'account.apps.AccountConfig',
-    'customerreview.apps.CustomerreviewConfig'
+    'customerreview.apps.CustomerreviewConfig',
+    'interiorcompany.apps.InteriorcompanyConfig'
 ]
 
 MIDDLEWARE = [

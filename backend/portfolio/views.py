@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Avg, Min, Max, Count
@@ -12,12 +13,14 @@ from django.shortcuts import get_object_or_404
 from .filters import PortfoliosFilter
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def getMainPagePortfolio(request):
     filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.filter(onAds=True).order_by('-id')[:6])
     serializer = PortfolioSerializer(filterset.qs, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def getAllPortfolio(request):
   filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.all().order_by('id'))
   count = filterset.qs.count()
@@ -36,6 +39,7 @@ def getAllPortfolio(request):
     'portfolios':serializer.data})
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def getPortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
   serializer = PortfolioSerializer(portfolio, many=False)

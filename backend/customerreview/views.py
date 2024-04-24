@@ -1,9 +1,11 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Avg, Min, Max, Count
 from rest_framework.pagination import PageNumberPagination
+
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import CustomerreviewSerializer
 from .models import Customerreview
@@ -45,15 +47,23 @@ def getCustomerReview(request, pk):
   return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def newCustomerReview(request):
+  request.data['createdBy'] = request.user
+
   data = request.data
   customerreview = Customerreview.objects.create(**data)
   serializer = CustomerreviewSerializer(customerreview, many=False)
   return Response(serializer.data)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def updateCustomerReview(request, pk):
   customerreview = get_object_or_404(Customerreview, id=pk)
+
+  if customerreview.createdBy != request.user:
+    return Response({'message': 'You can not update this job'}, status=status.HTTP_403_FORBIDDEN)
+
   customerreview.title = request.data['title']
   customerreview.contents = request.data['contents']
   customerreview.address = request.data['address']

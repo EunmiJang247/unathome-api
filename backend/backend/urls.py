@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/', include('portfolio.urls')),
     path('api/', include('account.urls')),
     path('api/', include('customerreview.urls')),
+    path('api/', include('interiorcompany.urls')),
     path('api/token/', TokenObtainPairView.as_view()),
     path('api/token/verify/', TokenVerifyView.as_view())
 ]

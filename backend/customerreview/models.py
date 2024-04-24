@@ -1,9 +1,11 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 # id: string
 # createdAt: Date
+# createdBy: 작성한 user
 # title(string) / 글 제목
 # contents(string) / 글 내용
 # address(string/ 시공받은 아파트 이름)
@@ -24,6 +26,7 @@ class TypeField(models.TextChoices):
 
 class Customerreview(models.Model):
   createdAt = models.DateTimeField(auto_now_add=True)
+  createdBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
   title = models.CharField(max_length=200, null=True)
   contents = models.TextField(null=True)
   address = models.CharField(max_length=100, null=True)
