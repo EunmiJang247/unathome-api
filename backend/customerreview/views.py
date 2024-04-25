@@ -46,6 +46,24 @@ def getMainPageCustomerReview(request):
 def getCustomerReview(request, pk):
   customerreview = get_object_or_404(Customerreview, id=pk)
 
+    # 현재 리뷰의 id를 기준으로 이전글과 다음글 찾기
+  previous_review = Customerreview.objects.filter(id__lt=pk).order_by('-id').first()
+  next_review = Customerreview.objects.filter(id__gt=pk).order_by('id').first()
+
+  # 이전글과 다음글이 없을 경우에 대한 처리
+  previous_review_data = None
+  next_review_data = None
+  if previous_review:
+      previous_review_data = {
+          'id': previous_review.id,
+          'title': previous_review.title  # 이전글의 제목 또는 필요한 정보 추가
+      }
+  if next_review:
+      next_review_data = {
+          'id': next_review.id,
+          'title': next_review.title  # 다음글의 제목 또는 필요한 정보 추가
+      }
+
   # 리뷰에 대한 유저 정보 가져오기
   user = customerreview.createdBy
 
@@ -55,7 +73,9 @@ def getCustomerReview(request, pk):
   serializer = CustomerreviewSerializer(customerreview, many=False)
   return Response({
       'user': user_serializer.data,
-      'review': serializer.data
+      'review': serializer.data,
+      'previous_review': previous_review_data,
+      'next_review': next_review_data
   })
 
 @api_view(['POST'])

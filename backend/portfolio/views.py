@@ -95,8 +95,6 @@ def newPortfolio(request):
   portfolio = Portfolio.objects.create(**portfolio_data)
   images_data = request.FILES.getlist('images')
 
-  print(images_data)
-
   # 각 이미지를 포트폴리오에 연결합니다.
   for image_data in images_data:
         PortfolioImage.objects.create(portfolio=portfolio, images=image_data)
