@@ -26,7 +26,7 @@ class Portfolio(models.Model):
   createdAt = models.DateTimeField(auto_now_add=True)
   title = models.CharField(max_length=200, null=True)
   contents = models.TextField(null=True)
-  address = models.CharField(max_length=100, null=True)
+  portfolioaddress = models.CharField(max_length=100, null=True)
   interiorCompany = models.CharField(max_length=100, null=True)
   residentType = models.CharField(max_length=20, choices=TypeField,null=True)
   duration = models.CharField(max_length=100, null=True)

@@ -67,13 +67,10 @@ def getPortfolio(request, pk):
   images = PortfolioImage.objects.filter(portfolio=portfolio)
   image_serializer = PortfolioImageSerializer(images, many=True)
 
-  # 포트폴리오 정보와 이미지 정보를 합쳐서 응답
-  response_data = {
-        'portfolio': portfolio_serializer.data,
-        'images': image_serializer.data
-  }
-
-  return Response(response_data)
+  return Response({
+    'portfolio': portfolio_serializer.data,
+    'images': image_serializer.data
+  })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -83,7 +80,7 @@ def newPortfolio(request):
   portfolio_data = {
       'title': data.get('title'),
       'contents': data.get('contents'),
-      'address': data.get('address'),
+      'portfolioaddress': data.get('portfolioaddress'),
       'interiorCompany': data.get('interiorCompany'),
       'residentType': data.get('residentType'),
       'duration': data.get('duration'),
@@ -107,7 +104,7 @@ def updatePortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
   portfolio.title = request.data['title']
   portfolio.contents = request.data['contents']
-  portfolio.address = request.data['address']
+  portfolio.portfolioaddress = request.data['portfolioaddress']
   portfolio.interiorCompany = request.data['interiorCompany']
   portfolio.residentType = request.data['residentType']
   portfolio.duration = request.data['duration']

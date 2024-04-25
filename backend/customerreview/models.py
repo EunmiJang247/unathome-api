@@ -36,8 +36,10 @@ class Customerreview(models.Model):
   size = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(300)])
   likeCount = models.IntegerField(null=True)
   price = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(1000000000)])
-  # images = ArrayField(models.CharField(max_length=200), null=True)
   onAds = models.BooleanField(default=False)
   # tags = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
-  
+
+class CustomerreviewImage(models.Model):
+  review = models.ForeignKey(Customerreview, related_name='images', on_delete=models.CASCADE)
+  images = models.ImageField(upload_to='')

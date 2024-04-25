@@ -74,6 +74,6 @@ def newStoryFunc(request):
     request.data['createdBy'] = request.user
 
     data = request.data
-    customerreview = Story.objects.create(**data)
-    serializer = StorySerializer(customerreview, many=False)
+    story = Story.objects.create(**data)
+    serializer = StorySerializer(story, many=False)
     return Response(serializer.data)
