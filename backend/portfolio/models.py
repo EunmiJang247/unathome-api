@@ -2,6 +2,8 @@ from django.db import models
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from interiorcompany.models import Interiorcompany
+
 # id: string
 # createdAt: Date
 # title(string) / 글 제목
@@ -27,7 +29,7 @@ class Portfolio(models.Model):
   title = models.CharField(max_length=200, null=True)
   contents = models.TextField(null=True)
   portfolioaddress = models.CharField(max_length=100, null=True)
-  interiorCompany = models.CharField(max_length=100, null=True)
+  interiorCompany = models.ForeignKey(Interiorcompany, on_delete=models.SET_NULL, null=True)
   residentType = models.CharField(max_length=20, choices=TypeField,null=True)
   duration = models.CharField(max_length=100, null=True)
   size = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(300)])
