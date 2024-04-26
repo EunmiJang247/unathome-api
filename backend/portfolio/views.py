@@ -54,6 +54,7 @@ def getAllPortfolio(request):
 
       images = PortfolioImage.objects.filter(portfolio=portfolio)
       image_data = PortfolioImageSerializer(images, many=True).data
+      
       portfolio_data['images'] = image_data
       portfolios_with_images.append(portfolio_data)
 

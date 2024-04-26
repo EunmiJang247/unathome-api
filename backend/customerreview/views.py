@@ -46,11 +46,13 @@ def getAllCustomerReview(request):
   paginator.page_size = resPerPage
 
   queryset = paginator.paginate_queryset(filterset.qs, request)
+  print(queryset)
 
   # 리뷰와 이미지 모두
   review_with_images = []
   for review in queryset:
     review_data = CustomerreviewSerializer(review).data
+
     images = CustomerreviewImage.objects.filter(review=review)
     image_serializer = CustomerreviewImageSerializer(images, many=True)
 
@@ -90,14 +92,23 @@ def getCustomerReview(request, pk):
   # 리뷰에 대한 유저 정보 가져오기
   user = customerreview.createdBy
 
+
   # 유저 정보 시리얼라이즈
   user_serializer = UserSerializer(user)
-
+  print(user_serializer)
   review_serializer = CustomerreviewSerializer(customerreview, many=False)
 
   # 해당 리뷰에 연결된 이미지 가져오기
   images = CustomerreviewImage.objects.filter(review=customerreview)
   image_serializer = CustomerreviewImageSerializer(images, many=True)
+  
+  # print(user_serializer.data)
+  # print(review_serializer.data)
+  # print(previous_review_data)
+  # print(next_review_data)
+  # print(image_serializer.data)
+
+  print('뀨..')
 
   return Response({
       'user': user_serializer.data,
@@ -163,8 +174,8 @@ def updateCustomerReview(request, pk):
 def deleteCustomerReview(request, pk):
   customerreview = get_object_or_404(Customerreview, id=pk)
 
-  if customerreview.createdBy != request.user:
-    return Response({'message': 'You can not update this job'}, status=status.HTTP_403_FORBIDDEN)
+  # if customerreview.createdBy != request.user:
+  #   return Response({'message': 'You can not update this job'}, status=status.HTTP_403_FORBIDDEN)
 
   customerreview.delete()
   return Response({ 'message': 'Customer Review is Deleted' }, status=status.HTTP_200_OK)
