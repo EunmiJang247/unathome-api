@@ -46,7 +46,6 @@ def getAllCustomerReview(request):
   paginator.page_size = resPerPage
 
   queryset = paginator.paginate_queryset(filterset.qs, request)
-  print(queryset)
 
   # 리뷰와 이미지 모두
   review_with_images = []
@@ -95,20 +94,11 @@ def getCustomerReview(request, pk):
 
   # 유저 정보 시리얼라이즈
   user_serializer = UserSerializer(user)
-  print(user_serializer)
   review_serializer = CustomerreviewSerializer(customerreview, many=False)
 
   # 해당 리뷰에 연결된 이미지 가져오기
   images = CustomerreviewImage.objects.filter(review=customerreview)
   image_serializer = CustomerreviewImageSerializer(images, many=True)
-  
-  # print(user_serializer.data)
-  # print(review_serializer.data)
-  # print(previous_review_data)
-  # print(next_review_data)
-  # print(image_serializer.data)
-
-  print('뀨..')
 
   return Response({
       'user': user_serializer.data,

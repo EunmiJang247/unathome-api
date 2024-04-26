@@ -111,7 +111,6 @@ def newPortfolio(request):
 
   # 포트폴리오 정보를 저장
   portfolio = Portfolio.objects.create(**portfolio_data)
-  print(portfolio)
   images_data = request.FILES.getlist('images')
 
   # 각 이미지를 포트폴리오에 연결합니다.
@@ -140,7 +139,6 @@ def updatePortfolio(request, pk):
 
 @api_view(['DELETE'])
 def deletePortfolio(request, pk):
-  print('hi')
   portfolio = get_object_or_404(Portfolio, id=pk)
   portfolio.delete()
   return Response({ 'message': 'Job is Delted' }, status=status.HTTP_200_OK)
