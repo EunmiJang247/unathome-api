@@ -12,17 +12,53 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import os
+import requests
 
 # 카카오로그인
 @api_view(['POST'])
 def kakaoLogin(request):
   data = request.data
+
+  # 카카오로 코드 보내서 카카오 아이디 받음 시작
+  restKey=os.environ.get('KAKAO_REST_KEY')
+  secretKey=os.environ.get('KAKAO_SECRET')
+
+  kakaoUrl = 'https://kauth.kakao.com/oauth/token'
+  kakaoHeaders = {
+    'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+  }
+  kakaoData = {
+    'grant_type': 'authorization_code',
+    'client_id': restKey,
+    'redirect_uri': 'http://localhost:3001/',
+    'code': data['first_name'],
+    'client_secret': secretKey,
+  }
+  kakaoResponse = requests.post(kakaoUrl, headers=kakaoHeaders, data=kakaoData)
+  kakaoResult =  kakaoResponse.json()
+
+  response = requests.post(
+    'https://kapi.kakao.com/v2/user/me',
+    headers={
+        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+        'Authorization': 'Bearer ' + kakaoResult['access_token'],
+    },
+  )
+
+  kakao_data = response.json()
+  kakao_id = kakao_data['id']
+  data['first_name'] = kakao_id
+  data['last_name'] = kakao_data['properties']['nickname']
+  # 카카오로 코드 보내서 카카오 아이디 받음 끝
+
   user = SignUpSerializer(data=data)
 
   if user.is_valid():
     if not User.objects.filter(username=data['first_name']).exists():
       user = User.objects.create(
         username = data['first_name'],
+        last_name = data['last_name'],
         password = make_password('unathome')
       )
 
