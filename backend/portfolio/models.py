@@ -20,15 +20,15 @@ from interiorcompany.models import Interiorcompany
 # tags(ForignKey / 테그)
 
 class TypeField(models.TextChoices):
-  opistel = '오피스텔'
-  apartment = '아파트'
-  villa = '빌라'
+  오피스텔 = '오피스텔'
+  아파트 = '아파트'
+  빌라 = '빌라'
 
 class Portfolio(models.Model):
   createdAt = models.DateTimeField(auto_now_add=True)
   title = models.CharField(max_length=200, null=True)
   contents = models.TextField(null=True)
-  portfolioaddress = models.CharField(max_length=100, null=True)
+  address = models.CharField(max_length=100, null=True)
   interiorCompany = models.ForeignKey(Interiorcompany, on_delete=models.SET_NULL, null=True)
   residentType = models.CharField(max_length=20, choices=TypeField,null=True)
   duration = models.CharField(max_length=100, null=True)

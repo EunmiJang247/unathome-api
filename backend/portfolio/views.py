@@ -21,8 +21,25 @@ from .filters import PortfoliosFilter
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def getMainPagePortfolio(request):
-    filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.filter(onAds=True).order_by('-id')[:6])
-    
+    size_range = request.GET.get('size_range')  # size 범위를 받아옴
+    price_range = request.GET.get('price_range')  # price 범위를 받아옴
+
+    # size_range 파싱
+    if size_range:
+        size_min, size_max = map(int, size_range.split('-'))
+    else:
+        size_min, size_max = 10, 200  # 기본값 설정
+
+    # price_range 파싱
+    if price_range:
+        price_min, price_max = map(int, price_range.split('-'))
+    else:
+        price_min, price_max = 0, 1000000000  # 기본값 설정
+
+    # 포트폴리오 필터링
+    filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.filter(
+        onAds=True, size__range=(size_min, size_max), price__range=(price_min, price_max)).order_by('-id')[:6])
+      
     portfolios_with_images = []
     for portfolio in filterset.qs:
         portfolio_data = PortfolioSerializer(portfolio).data
@@ -37,7 +54,7 @@ def getMainPagePortfolio(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def getAllPortfolio(request):
-  filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.all().order_by('id'))
+  filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.all().order_by('-id'))
   count = filterset.qs.count()
 
   # 페이지네이션을 위해 추가
@@ -93,21 +110,23 @@ def newPortfolio(request):
   interior_company_id = data.get('interiorCompany')
 
   try:
-    # 외부키로 사용할 Interiorcompany 객체를 가져옵니다.
     interior_company = Interiorcompany.objects.get(pk=interior_company_id)
+
+    print(interior_company)
   except Interiorcompany.DoesNotExist:
     return Response({"error": "Specified interior company does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
   portfolio_data = {
       'title': data.get('title'),
       'contents': data.get('contents'),
-      'portfolioaddress': data.get('portfolioaddress'),
+      'address': data.get('address'),
       'interiorCompany': interior_company,
       'residentType': data.get('residentType'),
       'duration': data.get('duration'),
       'size': int(data.get('size')),
       'price': int(data.get('price')),
   }
+
 
   # 포트폴리오 정보를 저장
   portfolio = Portfolio.objects.create(**portfolio_data)
@@ -125,12 +144,13 @@ def updatePortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
   portfolio.title = request.data['title']
   portfolio.contents = request.data['contents']
-  portfolio.portfolioaddress = request.data['portfolioaddress']
+  portfolio.address = request.data['address']
   portfolio.interiorCompany = request.data['interiorCompany']
   portfolio.residentType = request.data['residentType']
   portfolio.duration = request.data['duration']
   portfolio.size = request.data['size']
   portfolio.price = request.data['price']
+  portfolio.likeCount = 0
 
   portfolio.save()
 
