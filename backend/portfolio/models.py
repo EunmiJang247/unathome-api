@@ -36,9 +36,12 @@ class Portfolio(models.Model):
   likeCount = models.IntegerField(null=True)
   price = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(1000000000)])
   onAds = models.BooleanField(default=False)
-  # tags = models.ForeignKey(Tag, on_delete=models.CASCADE)
+  tags = models.ManyToManyField('Tag')
 
   
 class PortfolioImage(models.Model):
-    portfolio = models.ForeignKey(Portfolio, related_name='images', on_delete=models.CASCADE)
-    images = models.ImageField(upload_to='')
+  portfolio = models.ForeignKey(Portfolio, related_name='images', on_delete=models.CASCADE)
+  images = models.ImageField(upload_to='')
+
+class Tag(models.Model):
+    name = models.CharField(max_length=255)

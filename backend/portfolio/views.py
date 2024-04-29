@@ -2,7 +2,6 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
 from django.db.models import Avg, Min, Max, Count
 from rest_framework.pagination import PageNumberPagination
 
@@ -11,13 +10,20 @@ from rest_framework.permissions import IsAuthenticated
 from interiorcompany.serializers import InteriorcompanySerializer
 from interiorcompany.models import Interiorcompany
 
-from .serializers import PortfolioSerializer, PortfolioImageSerializer
-from .models import Portfolio, PortfolioImage
+from .serializers import PortfolioSerializer, PortfolioImageSerializer, TagSerializer
+from .models import Portfolio, PortfolioImage, Tag
 
 from django.shortcuts import get_object_or_404
 from .filters import PortfoliosFilter
+from portfolio import serializers
 
+from rest_framework import (
+    viewsets,
+    mixins,
+    status,
+)
 
+# 포트폴리오 메인 6개
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def getMainPagePortfolio(request):
@@ -43,8 +49,44 @@ def getMainPagePortfolio(request):
     portfolios_with_images = []
     for portfolio in filterset.qs:
         portfolio_data = PortfolioSerializer(portfolio).data
+
+        tags = portfolio.tags.all()
+        tag_data = TagSerializer(tags, many=True).data
+
+        portfolio_data['tags'] = tag_data
+
         images = PortfolioImage.objects.filter(portfolio=portfolio)
         image_data = PortfolioImageSerializer(images, many=True).data
+
+        portfolio_data['images'] = image_data
+        portfolios_with_images.append(portfolio_data)
+
+    return Response(portfolios_with_images)
+
+
+# 포트폴리오 메인 4개
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def getMainPageKeywordsPortfolio(request):
+    keyword = request.GET.get('keyword')  # size 범위를 받아옴
+    print(keyword)
+
+    # 포트폴리오 필터링
+    filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.filter(
+        tags__name__icontains=keyword).order_by('-id')[:4])
+      
+    portfolios_with_images = []
+    for portfolio in filterset.qs:
+        portfolio_data = PortfolioSerializer(portfolio).data
+
+        tags = portfolio.tags.all()
+        tag_data = TagSerializer(tags, many=True).data
+
+        portfolio_data['tags'] = tag_data
+
+        images = PortfolioImage.objects.filter(portfolio=portfolio)
+        image_data = PortfolioImageSerializer(images, many=True).data
+
         portfolio_data['images'] = image_data
         portfolios_with_images.append(portfolio_data)
 
@@ -69,11 +111,17 @@ def getAllPortfolio(request):
   for portfolio in queryset:
       portfolio_data = PortfolioSerializer(portfolio).data
 
+      tags = portfolio.tags.all()
+      tag_data = TagSerializer(tags, many=True).data
+
+      portfolio_data['tags'] = tag_data
+
       images = PortfolioImage.objects.filter(portfolio=portfolio)
       image_data = PortfolioImageSerializer(images, many=True).data
       
       portfolio_data['images'] = image_data
       portfolios_with_images.append(portfolio_data)
+      
 
   return Response({
     'count': count,
@@ -96,23 +144,30 @@ def getPortfolio(request, pk):
   if portfolio.interiorCompany:
       interior_company_serializer = InteriorcompanySerializer(portfolio.interiorCompany, many=False)
 
-
   return Response({
     'portfolio': portfolio_serializer.data,
     'images': image_serializer.data,
     'interior_company': interior_company_serializer.data if interior_company_serializer else None
   })
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def newPortfolio(request):
   data = request.data
+
+  # 태그 정보를 추출
+  tag_names = data.get('tags', [])
+  tags = []
+  for tag_name in tag_names:
+      tag, _ = Tag.objects.get_or_create(name=tag_name)
+      tags.append(tag.pk)
+
   interior_company_id = data.get('interiorCompany')
 
   try:
     interior_company = Interiorcompany.objects.get(pk=interior_company_id)
 
-    print(interior_company)
   except Interiorcompany.DoesNotExist:
     return Response({"error": "Specified interior company does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -125,32 +180,39 @@ def newPortfolio(request):
       'duration': data.get('duration'),
       'size': int(data.get('size')),
       'price': int(data.get('price')),
+      'tags': tags,
   }
+  
+  serializer = PortfolioSerializer(data=portfolio_data)
+  if serializer.is_valid():
+      portfolio = serializer.save()
 
+      # 포트폴리오 이미지 처리
+      images_data = request.FILES.getlist('images')
+      for image_data in images_data:
+          PortfolioImage.objects.create(portfolio=portfolio, images=image_data)
 
-  # 포트폴리오 정보를 저장
-  portfolio = Portfolio.objects.create(**portfolio_data)
-  images_data = request.FILES.getlist('images')
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+  else:
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-  # 각 이미지를 포트폴리오에 연결합니다.
-  for image_data in images_data:
-     PortfolioImage.objects.create(portfolio=portfolio, images=image_data)
-
-  serializer = PortfolioSerializer(portfolio, many=False)
-  return Response(serializer.data)
 
 @api_view(['PUT'])
 def updatePortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
-  portfolio.title = request.data['title']
-  portfolio.contents = request.data['contents']
-  portfolio.address = request.data['address']
-  portfolio.interiorCompany = request.data['interiorCompany']
-  portfolio.residentType = request.data['residentType']
-  portfolio.duration = request.data['duration']
-  portfolio.size = request.data['size']
-  portfolio.price = request.data['price']
-  portfolio.likeCount = 0
+
+  if serializer.is_valid():
+     portfolio = serializer.save()
+
+     portfolio.title = request.data['title']
+     portfolio.contents = request.data['contents']
+     portfolio.address = request.data['address']
+     portfolio.interiorCompany = request.data['interiorCompany']
+     portfolio.residentType = request.data['residentType']
+     portfolio.duration = request.data['duration']
+     portfolio.size = request.data['size']
+     portfolio.price = request.data['price']
+     portfolio.tags = request.data['tags']
 
   portfolio.save()
 
@@ -162,3 +224,17 @@ def deletePortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
   portfolio.delete()
   return Response({ 'message': 'Job is Delted' }, status=status.HTTP_200_OK)
+
+
+class BaseRecipeAttrViewSet(mixins.CreateModelMixin,
+                            mixins.DestroyModelMixin,
+                            mixins.UpdateModelMixin,
+                            mixins.ListModelMixin,
+                            mixins.RetrieveModelMixin,
+                            viewsets.GenericViewSet):
+    """Base viewset for recipe attributes."""
+
+class TagViewSet(BaseRecipeAttrViewSet):
+    """Manage tags in the database."""
+    serializer_class = serializers.TagSerializer
+    queryset = Tag.objects.all()
