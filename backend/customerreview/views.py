@@ -25,7 +25,7 @@ def getMainPageCustomerReview(request):
     customer_review_with_images = []
     for customerriew in filterset.qs:
         customerriew_data = CustomerreviewSerializer(customerriew).data
-        images = CustomerreviewImage.objects.filter(customerriew=customerriew)
+        images = CustomerreviewImage.objects.filter(review=customerriew)
         image_data = CustomerreviewImageSerializer(images, many=True).data
         customerriew_data['images'] = image_data
         customer_review_with_images.append(customerriew_data)
