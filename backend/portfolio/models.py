@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -37,11 +38,14 @@ class Portfolio(models.Model):
   price = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(1000000000)])
   onAds = models.BooleanField(default=False)
   tags = models.ManyToManyField('Tag')
-
   
 class PortfolioImage(models.Model):
   portfolio = models.ForeignKey(Portfolio, related_name='images', on_delete=models.CASCADE)
   images = models.ImageField(upload_to='')
 
 class Tag(models.Model):
-    name = models.CharField(max_length=255)
+  name = models.CharField(max_length=255)
+
+class PortfolioLike(models.Model):
+  portfolio = models.ForeignKey(Portfolio, related_name='portfolio_likes', on_delete=models.CASCADE)
+  user = models.ForeignKey(User, related_name='user_likes', on_delete=models.CASCADE)

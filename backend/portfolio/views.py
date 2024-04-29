@@ -7,11 +7,12 @@ from rest_framework.pagination import PageNumberPagination
 
 from rest_framework.permissions import IsAuthenticated
 
+from account.serializers import UserSerializer
 from interiorcompany.serializers import InteriorcompanySerializer
 from interiorcompany.models import Interiorcompany
 
-from .serializers import PortfolioSerializer, PortfolioImageSerializer, TagSerializer
-from .models import Portfolio, PortfolioImage, Tag
+from .serializers import PortfolioLikeSerializer, PortfolioSerializer, PortfolioImageSerializer, TagSerializer
+from .models import Portfolio, PortfolioImage, PortfolioLike, Tag
 
 from django.shortcuts import get_object_or_404
 from .filters import PortfoliosFilter
@@ -224,6 +225,56 @@ def deletePortfolio(request, pk):
   portfolio = get_object_or_404(Portfolio, id=pk)
   portfolio.delete()
   return Response({ 'message': 'Job is Delted' }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def likePortfolio(request, pk):
+    portfolio = get_object_or_404(Portfolio, id=pk)
+    user = UserSerializer(request.user)
+    like_data = {
+        'user': user.data['id'],
+        'portfolio': portfolio.id,
+    }
+    serializer = PortfolioLikeSerializer(data=like_data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def myLikePortfolios(request):
+    user = UserSerializer(request.user)
+    userId = user.data['id']
+
+    filterset = PortfolioLike.objects.filter(user_id=userId).order_by('-id')
+    count = filterset.count()
+
+    resPerPage = 9
+    paginator = PageNumberPagination()
+    paginator.page_size = resPerPage
+
+    queryset = paginator.paginate_queryset(filterset, request)
+
+    portfolios_with_images = []
+    for portfolio_like in queryset:
+        portfolio = portfolio_like.portfolio
+        portfolio_data = PortfolioSerializer(portfolio).data
+
+        images = PortfolioImage.objects.filter(portfolio=portfolio)
+        image_data = PortfolioImageSerializer(images, many=True).data
+        
+        portfolio_data['images'] = image_data
+        portfolios_with_images.append(portfolio_data)
+
+    return Response({
+        'count': count,
+        'resPerPage': resPerPage,
+        'portfolios': portfolios_with_images})
 
 
 class BaseRecipeAttrViewSet(mixins.CreateModelMixin,

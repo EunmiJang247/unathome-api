@@ -14,8 +14,10 @@ urlpatterns = [
     path('portfolios/main/', views.getMainPagePortfolio, name='main_portfolios'),
     path('portfolios/keywords/', views.getMainPageKeywordsPortfolio, name='keywords_portfolios'),
     path('portfolios/new/', views.newPortfolio, name='new_portfolios'),
+    path('portfolios/mylikes/', views.myLikePortfolios, name='new_portfolios'),
     path('portfolios/<str:pk>/', views.getPortfolio, name='portfolio'),
     path('portfolios/<str:pk>/update/', views.updatePortfolio, name='update_portfolio'),
     path('portfolios/<str:pk>/delete/', views.deletePortfolio, name='delete_portfolio'),
+    path('portfolios/<str:pk>/like/', views.likePortfolio, name='update_portfolio'),
     path('', include(router.urls))
 ]

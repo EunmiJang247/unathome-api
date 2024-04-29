@@ -18,4 +18,4 @@ class UserSerializer(serializers.ModelSerializer):
   address = serializers.CharField(source='userprofile.address')
   class Meta:
     model = User
-    fields = ('username', 'bankBook', 'address')
+    fields = ('id', 'username', 'bankBook', 'address')
