@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'customerreview.apps.CustomerreviewConfig',
     'interiorcompany.apps.InteriorcompanyConfig',
     'story.apps.StoryConfig',
+    'consultant.apps.ConsultantConfig',
 ]
 
 MIDDLEWARE = [
