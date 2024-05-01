@@ -158,7 +158,6 @@ def newCustomerReview(request):
     'size': data.get('size'),
     'price': data.get('price'),
   }
-  print(review_data)
 
   # 포트폴리오 정보를 저장
   customerreview = Customerreview.objects.create(**review_data)
