@@ -66,6 +66,40 @@ def getAllCustomerReview(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getMyCustomerReview(request):
+  user = UserSerializer(request.user)
+  userId = user.data['id']
+
+  filterset = CustomerreviewFilter(request.GET, queryset=Customerreview.objects.filter(createdBy=userId).order_by('id'))
+  count = filterset.qs.count()
+
+  # 페이지네이션을 위해 추가
+  resPerPage = 9
+  paginator = PageNumberPagination()
+  paginator.page_size = resPerPage
+
+  queryset = paginator.paginate_queryset(filterset.qs, request)
+
+  # 리뷰와 이미지 모두
+  review_with_images = []
+  for review in queryset:
+    review_data = CustomerreviewSerializer(review).data
+
+    images = CustomerreviewImage.objects.filter(review=review)
+    image_serializer = CustomerreviewImageSerializer(images, many=True)
+
+    image_data = image_serializer.data
+    review_data['images'] = image_data
+    review_with_images.append(review_data)
+  
+  return Response({
+    'count': count,
+    'resPerPage': resPerPage,
+    'customerReview': review_with_images})
+
+
+@api_view(['GET'])
 @permission_classes([AllowAny])
 def getCustomerReview(request, pk):
   customerreview = get_object_or_404(Customerreview, id=pk)
@@ -113,7 +147,6 @@ def getCustomerReview(request, pk):
 def newCustomerReview(request):
   request.data['createdBy'] = request.user
   data = request.data
-
   review_data = {
     'createdBy': data.get('createdBy'),
     'title': data.get('title'),
@@ -125,6 +158,7 @@ def newCustomerReview(request):
     'size': data.get('size'),
     'price': data.get('price'),
   }
+  print(review_data)
 
   # 포트폴리오 정보를 저장
   customerreview = Customerreview.objects.create(**review_data)
