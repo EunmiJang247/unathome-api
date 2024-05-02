@@ -13,6 +13,7 @@ from account.serializers import UserSerializer
 
 from .serializers import ConsultantSerializer, ConsultantImageSerializer
 from .models import Consultant, ConsultantImage
+from rest_framework.exceptions import PermissionDenied
 
 from django.shortcuts import get_object_or_404
 
@@ -31,7 +32,6 @@ def getMyConsultant(request):
   paginator.page_size = resPerPage
 
   queryset = paginator.paginate_queryset(filterset, request)
-  print(queryset)
 
   # 리뷰와 이미지 모두
   consultant_with_images = []
@@ -71,3 +71,25 @@ def createConsultant(request):
           raise ValidationError(serializer.errors)
     except Exception as e:
       return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def readConsultant(request, pk):
+  user = UserSerializer(request.user)
+  consultant = get_object_or_404(Consultant, id=pk)
+  consultant_serializer = ConsultantSerializer(consultant, many=False)
+  userId = user.data['id']
+
+  if userId != consultant.createdBy.id:
+    print(userId)
+    print(consultant.createdBy.id)
+    raise PermissionDenied("You don't have permission to access this consultant.")
+
+  images = ConsultantImage.objects.filter(consultant=consultant)
+  image_serializer = ConsultantImageSerializer(images, many=True)
+
+  return Response({
+    'consultant': consultant_serializer.data,
+    'images': image_serializer.data,
+  })
