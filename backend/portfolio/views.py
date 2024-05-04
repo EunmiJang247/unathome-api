@@ -277,6 +277,20 @@ def myLikePortfolios(request):
         'portfolios': portfolios_with_images})
 
 
+# 사용자가 좋아요한 게시물 목록을 가져옵니다.
+# def get_liked_posts(user):
+#     liked_posts = PortfolioLike.objects.filter(user=user).values_list('post_id', flat=True)
+#     return liked_posts
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def isPostLiked(request, pk):
+# 해당 게시물이 사용자가 좋아요한 게시물인지 여부를 확인합니다.
+    user = UserSerializer(request.user)
+    userId = user.data['id']
+    # return post_id in liked_posts
+
 class BaseRecipeAttrViewSet(mixins.CreateModelMixin,
                             mixins.DestroyModelMixin,
                             mixins.UpdateModelMixin,
@@ -289,3 +303,8 @@ class TagViewSet(BaseRecipeAttrViewSet):
     """Manage tags in the database."""
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
+
+class PortpolioLikeViewSet(BaseRecipeAttrViewSet):
+    """PortpolioLikeViewSet database."""
+    serializer_class = serializers.PortfolioLikeSerializer
+    queryset = PortfolioLike.objects.all()
