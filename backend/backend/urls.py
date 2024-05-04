@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/', include('interiorcompany.urls')),
     path('api/', include('story.urls')),
     path('api/', include('consultant.urls')),
+    path('api/', include('faq.urls')),
     path('api/token/', TokenObtainPairView.as_view()),
     path('api/token/verify/', TokenVerifyView.as_view()),
 ]

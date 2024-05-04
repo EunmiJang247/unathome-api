@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'interiorcompany.apps.InteriorcompanyConfig',
     'story.apps.StoryConfig',
     'consultant.apps.ConsultantConfig',
+    'faq.apps.FaqConfig',
 ]
 
 MIDDLEWARE = [
