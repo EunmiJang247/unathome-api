@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class TypeField(models.TextChoices):
+  접수 = '접수'
+  진행중 = '진행중'
+  상담완료 = '상담완료'
+  공사진행중 = '공사진행중'
+  공사완료 = '공사완료'
+  후기작성완료 = '후기작성완료'
+
 class Consultant(models.Model):
   createdAt = models.DateTimeField(auto_now_add=True)
   createdBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -29,6 +37,7 @@ class Consultant(models.Model):
   wantstyle = models.CharField(max_length=50, null=True, blank=True)
   personalInfoAgree = models.BooleanField(default=False)
   marketingAgree = models.BooleanField(default=False)
+  status = models.CharField(max_length=20, choices=TypeField,null=True)
 
 class ConsultantImage(models.Model):
   consultant = models.ForeignKey(Consultant, related_name='images', on_delete=models.CASCADE)
