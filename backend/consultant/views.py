@@ -54,6 +54,7 @@ def getMyConsultant(request):
 @permission_classes([IsAuthenticated])
 def createConsultant(request):
     request.data['createdBy'] = request.user.id
+    print(request.data)
     data = request.data
     serializer = ConsultantSerializer(data=data)
     
@@ -61,7 +62,6 @@ def createConsultant(request):
       if serializer.is_valid():
           consultant = serializer.save()
           images_data = request.FILES.getlist('images')
-          print(images_data)
 
           for image_data in images_data:
             ConsultantImage.objects.create(consultant=consultant, images=image_data)

@@ -24,6 +24,11 @@ class TypeField(models.TextChoices):
   apartment = '아파트'
   villa = '빌라'
 
+class ServiceTypeField(models.TextChoices):
+  아쉬워요 = '아쉬워요'
+  보통이에요 = '보통이에요'
+  최고에요 = '최고에요'
+
 class Customerreview(models.Model):
   createdAt = models.DateTimeField(auto_now_add=True)
   createdBy = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -37,7 +42,10 @@ class Customerreview(models.Model):
   likeCount = models.IntegerField(null=True)
   price = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(1000000000)])
   onAds = models.BooleanField(default=False)
-  # tags = models.ForeignKey(Tag, on_delete=models.CASCADE)
+  totalRating = models.CharField(max_length=20, choices=TypeField,null=True)
+  intimacyRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)
+  qualityRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)
+  priceRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)
 
 
 class CustomerreviewImage(models.Model):
