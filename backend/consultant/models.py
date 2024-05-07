@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from interiorcompany.models import Interiorcompany
+
 class TypeField(models.TextChoices):
   접수 = '접수'
   진행중 = '진행중'
@@ -38,6 +40,7 @@ class Consultant(models.Model):
   personalInfoAgree = models.BooleanField(default=False)
   marketingAgree = models.BooleanField(default=False)
   status = models.CharField(max_length=20, choices=TypeField,null=True)
+  interiorCompany = models.ForeignKey(Interiorcompany, on_delete=models.SET_NULL, null=True)
 
 class ConsultantImage(models.Model):
   consultant = models.ForeignKey(Consultant, related_name='images', on_delete=models.CASCADE)

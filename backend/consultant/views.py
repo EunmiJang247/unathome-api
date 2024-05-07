@@ -10,6 +10,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from account.serializers import UserSerializer
+from interiorcompany.models import Interiorcompany
+from interiorcompany.serializers import InteriorcompanySerializer
 
 from .serializers import ConsultantSerializer, ConsultantImageSerializer
 from .models import Consultant, ConsultantImage
@@ -53,9 +55,10 @@ def getMyConsultant(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createConsultant(request):
-    request.data['createdBy'] = request.user.id
-    print(request.data)
-    data = request.data
+    data = request.data.copy()
+    data['createdBy'] = request.user.id
+
+
     serializer = ConsultantSerializer(data=data)
     
     try:
@@ -82,14 +85,14 @@ def readConsultant(request, pk):
   userId = user.data['id']
 
   if userId != consultant.createdBy.id:
-    print(userId)
-    print(consultant.createdBy.id)
     raise PermissionDenied("You don't have permission to access this consultant.")
 
+  interiorCompany = InteriorcompanySerializer(consultant.interiorCompany, many=False)
   images = ConsultantImage.objects.filter(consultant=consultant)
   image_serializer = ConsultantImageSerializer(images, many=True)
 
   return Response({
     'consultant': consultant_serializer.data,
     'images': image_serializer.data,
+    'interiorCompany': interiorCompany.data,
   })

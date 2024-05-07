@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from interiorcompany.models import Interiorcompany
+
 # id: string
 # createdAt: Date
 # createdBy: 작성한 user
@@ -35,14 +37,14 @@ class Customerreview(models.Model):
   title = models.CharField(max_length=200, null=True)
   contents = models.TextField(null=True)
   address = models.CharField(max_length=100, null=True)
-  interiorCompany = models.CharField(max_length=100, null=True)
+  interiorCompany = models.ForeignKey(Interiorcompany, on_delete=models.SET_NULL, null=True)
   residentType = models.CharField(max_length=20, choices=TypeField,null=True)
   duration = models.CharField(max_length=100, null=True)
   size = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(300)])
   likeCount = models.IntegerField(null=True)
   price = models.IntegerField(null=True, validators=[MinValueValidator(1), MaxValueValidator(1000000000)])
   onAds = models.BooleanField(default=False)
-  totalRating = models.CharField(max_length=20, choices=TypeField,null=True)
+  totalRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)
   intimacyRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)
   qualityRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)
   priceRating = models.CharField(max_length=20, choices=ServiceTypeField,null=True)

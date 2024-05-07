@@ -9,6 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from account.serializers import UserSerializer
+from interiorcompany.serializers import InteriorcompanySerializer
 
 from .serializers import CustomerreviewSerializer, CustomerreviewImageSerializer
 from .models import Customerreview, CustomerreviewImage
@@ -37,7 +38,7 @@ def getMainPageCustomerReview(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def getAllCustomerReview(request):
-  filterset = CustomerreviewFilter(request.GET, queryset=Customerreview.objects.all().order_by('id'))
+  filterset = CustomerreviewFilter(request.GET, queryset=Customerreview.objects.all().order_by('-id'))
   count = filterset.qs.count()
 
   # 페이지네이션을 위해 추가
@@ -71,7 +72,7 @@ def getMyCustomerReview(request):
   user = UserSerializer(request.user)
   userId = user.data['id']
 
-  filterset = CustomerreviewFilter(request.GET, queryset=Customerreview.objects.filter(createdBy=userId).order_by('id'))
+  filterset = CustomerreviewFilter(request.GET, queryset=Customerreview.objects.filter(createdBy=userId).order_by('-id'))
   count = filterset.qs.count()
 
   # 페이지네이션을 위해 추가
@@ -134,41 +135,51 @@ def getCustomerReview(request, pk):
   images = CustomerreviewImage.objects.filter(review=customerreview)
   image_serializer = CustomerreviewImageSerializer(images, many=True)
 
+  # 업체정보 가져오기
+  interior_company = InteriorcompanySerializer(customerreview.interiorCompany, many=False)
+
   return Response({
       'user': user_serializer.data,
       'review': review_serializer.data,
       'previous_review': previous_review_data,
       'next_review': next_review_data,
       'images': image_serializer.data,
+      'interiorCompany': interior_company.data,
   })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def newCustomerReview(request):
-  request.data['createdBy'] = request.user
   data = request.data
   review_data = {
-    'createdBy': data.get('createdBy'),
-    'title': data.get('title'),
-    'contents': data.get('contents'),
     'address': data.get('address'),
-    'interiorCompany': data.get('interiorCompany'),
-    'residentType': data.get('residentType'),
+    'contents': data.get('contents'),
     'duration': data.get('duration'),
-    'size': data.get('size'),
+    'interiorCompany': data.get('interiorCompany'),
+    'intimacyRating': data.get('intimacyRating'),
     'price': data.get('price'),
+    'priceRating': data.get('priceRating'),
+    'qualityRating': data.get('qualityRating'),
+    'residentType': data.get('residentType'),
+    'title': data.get('title'),
+    'totalRating': data.get('totalRating'),
+    'createdBy': request.user.id,
+    'size': data.get('size'),
   }
 
-  # 포트폴리오 정보를 저장
-  customerreview = Customerreview.objects.create(**review_data)
-  images_data = request.FILES.getlist('images')
+  serializer = CustomerreviewSerializer(data=review_data)
+  if serializer.is_valid():
+      review = serializer.save()
 
-  # 각 이미지를 포트폴리오에 연결합니다.
-  for image_data in images_data:
-     CustomerreviewImage.objects.create(review=customerreview, images=image_data)
-  
-  serializer = CustomerreviewSerializer(customerreview, many=False)
-  return Response(serializer.data)
+      # 포트폴리오 이미지 처리
+      images_data = request.FILES.getlist('images')
+      for image_data in images_data:
+          CustomerreviewImage.objects.create(review=review, images=image_data)
+
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+  else:
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -196,6 +207,7 @@ def updateCustomerReview(request, pk):
 @permission_classes([IsAuthenticated])
 def deleteCustomerReview(request, pk):
   customerreview = get_object_or_404(Customerreview, id=pk)
+  print(customerreview)
 
   # if customerreview.createdBy != request.user:
   #   return Response({'message': 'You can not update this job'}, status=status.HTTP_403_FORBIDDEN)
