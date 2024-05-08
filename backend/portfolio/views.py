@@ -230,19 +230,26 @@ def deletePortfolio(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def likePortfolio(request, pk):
-    portfolio = get_object_or_404(Portfolio, id=pk)
-    user = UserSerializer(request.user)
-    like_data = {
-        'user': user.data['id'],
-        'portfolio': portfolio.id,
-    }
-    serializer = PortfolioLikeSerializer(data=like_data)
-
+  portfolio = get_object_or_404(Portfolio, id=pk)
+  user = UserSerializer(request.user)
+  like_data = {
+      'user': user.data['id'],
+      'portfolio': portfolio.id,
+  }
+  serializer = PortfolioLikeSerializer(data=like_data)
+  like_exist = PortfolioLike.objects.filter(portfolio=portfolio, user=request.user).exists()
+  
+  if like_exist:
+    like_instance = PortfolioLike.objects.get(portfolio=portfolio, user=request.user)
+    print(like_instance)
+    like_instance.delete()
+    return Response({'message': '좋아요가 성공적으로 삭제되었습니다.'}, status=status.HTTP_200_OK)
+  else:
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -277,19 +284,13 @@ def myLikePortfolios(request):
         'portfolios': portfolios_with_images})
 
 
-# 사용자가 좋아요한 게시물 목록을 가져옵니다.
-# def get_liked_posts(user):
-#     liked_posts = PortfolioLike.objects.filter(user=user).values_list('post_id', flat=True)
-#     return liked_posts
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def isPostLiked(request, pk):
-# 해당 게시물이 사용자가 좋아요한 게시물인지 여부를 확인합니다.
-    user = UserSerializer(request.user)
-    userId = user.data['id']
-    # return post_id in liked_posts
+def myLikeOrNot(request, pk):
+  print('hi..')
+  portfolio = get_object_or_404(Portfolio, id=pk)
+  like_exist = PortfolioLike.objects.filter(portfolio=portfolio, user=request.user).exists()
+  return Response({'likeExist': like_exist})
 
 class BaseRecipeAttrViewSet(mixins.CreateModelMixin,
                             mixins.DestroyModelMixin,
