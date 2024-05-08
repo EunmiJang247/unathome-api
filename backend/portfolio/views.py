@@ -98,6 +98,25 @@ def getMainPageKeywordsPortfolio(request):
 @permission_classes([AllowAny])
 def getAllPortfolio(request):
   filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.all().order_by('-id'))
+
+  size_range = request.GET.get('size_range')  # size 범위를 받아옴
+  price_range = request.GET.get('price_range')  # price 범위를 받아옴
+
+  # size_range 파싱
+  if size_range:
+      size_min, size_max = map(int, size_range.split('-'))
+  else:
+      size_min, size_max = 10, 200  # 기본값 설정
+
+  # price_range 파싱
+  if price_range:
+      price_min, price_max = map(int, price_range.split('-'))
+  else:
+      price_min, price_max = 0, 20000  # 기본값 설정
+
+  filterset = PortfoliosFilter(request.GET, queryset=Portfolio.objects.filter(
+      onAds=True, size__range=(size_min, size_max), price__range=(price_min, price_max)).order_by('-id'))
+
   count = filterset.qs.count()
 
   # 페이지네이션을 위해 추가
