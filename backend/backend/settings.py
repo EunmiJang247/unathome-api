@@ -42,7 +42,13 @@ INSTALLED_APPS = [
     'story.apps.StoryConfig',
     'consultant.apps.ConsultantConfig',
     'faq.apps.FaqConfig',
+    'ckeditor',
+    'ckeditor_uploader',
 ]
+
+# settings.py
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_IMAGE_BACKEND = "pillow" 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

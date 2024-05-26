@@ -71,9 +71,36 @@ def getStory(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def newStoryFunc(request):
-    request.data['createdBy'] = request.user
+    data = request.data.copy()
+    data['createdBy'] = request.user.id
 
-    data = request.data
-    story = Story.objects.create(**data)
-    serializer = StorySerializer(story, many=False)
-    return Response(serializer.data)
+    serializer = StorySerializer(data=data)
+
+    try:
+      if serializer.is_valid():
+          story = serializer.save()
+          return Response(serializer.data)
+      else:
+          raise ValidationError(serializer.errors)
+    except Exception as e:
+      return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# 수정하기 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateStory(request, pk):
+  story = get_object_or_404(Story, id=pk)
+
+  if story.createdBy != request.user:
+    return Response({'message': 'You can not update this job'}, status=status.HTTP_403_FORBIDDEN)
+
+  story.title = request.data['title']
+  story.subTitle = request.data['subTitle']
+  story.category = request.data['category']
+  story.contents = request.data['contents']
+
+  story.save()
+
+  serializer = StorySerializer(story, many=False)
+  return Response(serializer.data)

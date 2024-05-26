@@ -40,7 +40,7 @@ def kakaoLogin(request):
 
   response = requests.post(
     'https://kapi.kakao.com/v2/user/me',
-    headers={
+    headers = {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
         'Authorization': 'Bearer ' + kakaoResult['access_token'],
     },
@@ -70,7 +70,6 @@ def kakaoLogin(request):
 
       # 토큰 발급 엔드포인트 호출
       token_response = TokenObtainPairSerializer().validate(token_data)
-
       return Response(token_response, status=status.HTTP_200_OK)
     
     else:

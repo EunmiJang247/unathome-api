@@ -276,6 +276,7 @@ def likePortfolio(request, pk):
 def myLikePortfolios(request):
     user = UserSerializer(request.user)
     userId = user.data['id']
+    print(userId)
 
     filterset = PortfolioLike.objects.filter(user_id=userId).order_by('-id')
     count = filterset.count()
@@ -306,7 +307,6 @@ def myLikePortfolios(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def myLikeOrNot(request, pk):
-  print('hi..')
   portfolio = get_object_or_404(Portfolio, id=pk)
   like_exist = PortfolioLike.objects.filter(portfolio=portfolio, user=request.user).exists()
   return Response({'likeExist': like_exist})
