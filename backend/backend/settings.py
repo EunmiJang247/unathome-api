@@ -42,13 +42,13 @@ INSTALLED_APPS = [
     'story.apps.StoryConfig',
     'consultant.apps.ConsultantConfig',
     'faq.apps.FaqConfig',
-    'ckeditor',
-    'ckeditor_uploader',
+    # 'ckeditor',
+    # 'ckeditor_uploader',
 ]
 
 # settings.py
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_IMAGE_BACKEND = "pillow" 
+# CKEDITOR_UPLOAD_PATH = 'uploads/'
+# CKEDITOR_IMAGE_BACKEND = "pillow" 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -96,8 +96,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "unathome745.cdtxdk5maefz.ap-northeast-2.rds.amazonaws.com",
-        "NAME": "unathome_745",
-        "USER": "unathome_745",
+        "NAME": "unathome745",
+        "USER": "unathome745",
         "PASSWORD": "unathome_Ghkdlxld^^!!",
         "PORT": "5432",
     }
