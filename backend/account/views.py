@@ -21,8 +21,8 @@ def kakaoLogin(request):
   data = request.data
 
   # 카카오로 코드 보내서 카카오 아이디 받음 시작
-  restKey=os.environ.get('KAKAO_REST_KEY')
-  secretKey=os.environ.get('KAKAO_SECRET')
+  restKey='f6fd089cd6464c7ae62db75e06e51277'
+  secretKey='41fc802ab8a066fcc2b3016fb2c5fb98'
 
   kakaoUrl = 'https://kauth.kakao.com/oauth/token'
   kakaoHeaders = {
