@@ -81,14 +81,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.environ.get('DATABASE_NAME'),
+#         "USER": os.environ.get('DATABASE_USER'),       
+#         "PASSWORD": os.environ.get('DATABASE_PASSWORD'),   
+#         "HOST": os.environ.get('DATABASE_HOST'),           
+#         "PORT": os.environ.get('DATABASE_PORT'),              
+#     }
+# }
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get('DATABASE_NAME'),
-        "USER": os.environ.get('DATABASE_USER'),       
-        "PASSWORD": os.environ.get('DATABASE_PASSWORD'),   
-        "HOST": os.environ.get('DATABASE_HOST'),           
-        "PORT": os.environ.get('DATABASE_PORT'),              
+        "HOST": "unathome745.cdtxdk5maefz.ap-northeast-2.rds.amazonaws.com",
+        "NAME": "unathome_745",
+        "USER": "unathome_745",
+        "PASSWORD": "unathome_Ghkdlxld^^!!",
+        "PORT": "5432",
     }
 }
 
